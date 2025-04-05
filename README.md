@@ -1,0 +1,1 @@
+# smARties.ai
