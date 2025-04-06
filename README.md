@@ -26,33 +26,49 @@ Making early education engaging, accessible, and effective for young children is
 
 > **Explore real-world objects with detailed 3D models that children can rotate, scale and interact with to understand shapes, forms and relationships.**
 
+---
+
 ### **Augmented Reality**  
 
 > **Experience learning that jumps off the screen and into the real world with our AR mode, allowing children to place virtual objects in their environment.**
+
+---
 
 ### **AI Flashcards**  
 
 > **Generate personalized educational flashcards for each object, created by AI to deliver age-appropriate facts that boost knowledge retention.**
 
+---
+
 ### **Audio Learning**  
 
 > **Enhance pronunciation and auditory learning with our text-to-speech feature that clearly articulates each object's name for improved language development.**
+
+---
 
 ### **Diverse Learning Categories**  
 
 > **Comprehensive learning across essential early education topics like Animals, Shapes, Transport, Fruits, Vegetables, Alphabets, Counting, Colors, and Body Parts to build a strong foundation for young minds.**
 
+---
+
 ### **Multi-Sensory Learning**  
 
 > **Engage visual, auditory, and interactive senses simultaneously for improved learning outcomes and memory retention in early childhood development.**
+
+---
 
 ### **Child-Friendly Interface**  
 
 > **Intuitive, colorful design with large buttons and simple navigation that children aged 2-8 can easily use independently or with minimal parental guidance.**
 
+---
+
 ### **Multi-Platform Access**  
 
 > **Available across all devices, including iOS and Android mobile apps, web apps for desktop and mobile browsers, and dedicated PWA desktop app, ensuring learning can happen anywhere.**
+
+---
 
 ### **Privacy-Focused**  
 
