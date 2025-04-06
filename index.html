@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>smARties.ai - AI & AR based Learning for Kids</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Baloo+Thambi+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            REMOVED
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        function formatDateToGMT530(date) {
+              const options = {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+              };
+              return date.toLocaleString('en-IN', options).replace(',', '');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const element = event.target;
+        
+            const clickData = {
+                tagName: element.tagName,
+                id: element.id || null,
+                classList: Array.from(element.classList).join(' ') || null,
+                textContent: element.textContent.trim() || null,
+                timestamp: formatDateToGMT530(new Date()),
+                page: document.title
+            };
+            database.ref('clicks').push(clickData);
+        });
+    </script>
+    <style>
+        :root {
+            --primary-color: #ff70a6;
+            --secondary-color: #febfc9; 
+            --accent-color: #fee440;
+            --text-color: #333333;
+            --background-color: #ffffff;
+            --success-color: #9ef01a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Baloo Thambi 2', cursive;
+            color: var(--text-color);
+            overflow-x: hidden;
+            background: linear-gradient(135deg, rgba(255,112,166,0.2) 0%, rgba(254,191,201,0.1) 100%);
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 L60 50 L50 70 L40 50 Z" fill="%23ff70a6" fill-opacity="0.1"/></svg>') repeat;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        
+        .hero {
+            padding: 40px 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deco {
+            overflow-y: auto;
+            flex-grow: 1;
+            background-image: radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%), 
+                              radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            color: var(--text-color);
+        }
+
+        .logo11 img {
+            width: 30%;
+        }
+
+        .logo11 {
+            cursor: pointer;
+            animation: fadeUp 0.8s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            max-width: 700px;
+            margin-bottom: 40px;
+            color: var(--text-color);
+            animation: fadeUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s ease-out 0.3s backwards;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: 'Baloo Thambi 2', cursive;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 3px solid #333333;
+            border-style: solid;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 8px rgba(255, 112, 166, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255, 112, 166, 0.8);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            box-shadow: 0 4px 8px rgba(254, 228, 64, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(254, 228, 64, 0.8);
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            aspect-ratio: 16/9;
+            animation: fadeUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .scroll-indicator {
+            margin-top: 30px;
+            animation: fadeUp 0.8s ease-out 0.5s backwards;
+            cursor: pointer;
+        }
+
+        .scroll-text {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .scroll-arrow {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            animation: bounce 2s infinite;
+        }
+
+        
+        .features {
+            padding: 0;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+            cursor: pointer;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            border: 2px solid #ff70a6;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        
+        footer {
+            background-color: var(--primary-color);
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--background-color);
+            cursor: pointer;
+        }
+
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: black;
+            cursor: pointer;
+        }
+
+        
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .hero {
+                padding: 35px 0 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="deco">
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div onclick="window.location.reload()" class="logo11">
+                <img src="favicon.png">
+                <h1 class="logo">sm<span>AR</span>ties.ai</h1>
+                </div>
+                <p class="hero-subtitle">
+                    Interactive AI & AR-based learning platform for children. Making education fun, engaging, and accessible!
+                </p>
+                
+                <div class="cta-buttons">
+                    <a href="app.html" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i>
+                        Get Started
+                    </a>
+                    <a href="Pitchdeck.pdf" class="btn btn-secondary">
+                        <i class="fas fa-file-alt"></i>
+                        View Pitchdeck
+                    </a>
+                </div>
+                
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/UT2I19YJp0w" frameborder="0" allowfullscreen></iframe>
+                </div>
+                
+                <div class="scroll-indicator" id="scrollToFeatures">
+                    <p class="scroll-text">Discover Features</p>
+                    <div class="scroll-arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Learning Features</h2>
+                <p>Explore how smARties.ai transforms early education with immersive AR and AI technologies</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <h3 class="feature-title">Interactive 3D Models</h3>
+                    <p class="feature-description">
+                        Explore real-world objects with detailed 3D models that children can rotate, scale and interact with to understand shapes, forms and relationships.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 class="feature-title">Augmented Reality</h3>
+                    <p class="feature-description">
+                        Experience learning that jumps off the screen and into the real world with our AR mode, allowing children to place virtual objects in their environment.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">AI Flashcards</h3>
+                    <p class="feature-description">
+                        Generate personalized educational flashcards for each object, created by AI to deliver age-appropriate facts that boost knowledge retention.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <h3 class="feature-title">Audio Learning</h3>
+                    <p class="feature-description">
+                        Enhance pronunciation and auditory learning with our text-to-speech feature that clearly articulates each object's name for improved language development.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-th"></i>
+                    </div>
+                    <h3 class="feature-title">Diverse Learning Categories</h3>
+                    <p class="feature-description">
+                        Comprehensive learning across essential early education topics like Animals, Shapes, Transport, Fruits, Vegetables, Alphabets, Counting, Colors, and Body Parts to build a strong foundation for young minds.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="feature-title">Multi-Sensory Learning</h3>
+                    <p class="feature-description">
+                        Engage visual, auditory, and interactive senses simultaneously for improved learning outcomes and memory retention in early childhood development.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <h3 class="feature-title">Child-Friendly Interface</h3>
+                    <p class="feature-description">
+                        Intuitive, colorful design with large buttons and simple navigation that children aged 2-8 can easily use independently or with minimal parental guidance.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Multi-Platform Access</h3>
+                    <p class="feature-description">
+                        Available across all devices, including iOS and Android mobile apps, web apps for desktop and mobile browsers, and dedicated PWA desktop app, ensuring learning can happen anywhere.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Privacy-Focused</h3>
+                    <p class="feature-description">
+                        Simple Google sign-in with strict privacy controls to protect your child's information while providing a personalized learning experience.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div onclick="window.open('index.html', '_self')" class="footer-logo">sm<span>AR</span>ties.ai</div>
+            <p onclick="window.open('index.html', '_self')" class="copyright">&copy; smARties.ai - AI & AR based Learning for Kids</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('scrollToFeatures').addEventListener('click', () => {
+            document.getElementById('features').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    </div>
+</body>
+</html>
