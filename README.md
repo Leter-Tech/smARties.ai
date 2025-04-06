@@ -8,7 +8,7 @@
 
 [Live Demo >](https://smarties-ai.web.app/)
 
-> **Note:** API keys and database credentials have been omitted from the codebase for security reasons. Use the demo link above to explore the features.
+> **Note:** API keys, images, 3D models and database credentials have been omitted from the codebase because of file size limitations and security reasons.
 
 ---
 
