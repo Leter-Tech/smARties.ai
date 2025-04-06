@@ -1,6 +1,6 @@
 # **smARties.ai**
 
-**Making learning magical for kids!**
+**Making learning magical for kids through AI & AR!**
 
 **smARties.ai** is an interactive **AI & AR-based early education platform** that empowers young children to **learn through play, explore with technology, and boost knowledge retention** using immersive 3D models, augmented reality, and personalized AI-driven flashcards.
 
