@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>smARties.ai - AI & AR based Learning for Kids</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Baloo+Thambi+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(reg => console.log("Service Worker registered"))
+            .catch(err => console.error("Service Worker registration failed", err));
+        }
+      </script>
+    <style>
+        :root {
+            --primary-color: #ff70a6;
+            --secondary-color: #febfc9; 
+            --accent-color: #fee440;
+            --text-color: #333333;
+            --background-color: #ffffff;
+            --success-color: #9ef01a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Baloo Thambi 2', cursive;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        .logo {
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .user-info {
+            display: none;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            background-color: var(--primary-color);
+            border-radius: 15px;
+            padding: 5px 15px;
+            margin: 5px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            max-width: 80%;
+        }
+
+        .object-label {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 150;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            background-color: rgba(255,112,166,0.8);
+            border-radius: 15px;
+            padding: 8px 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Baloo Thambi 2', cursive;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            gap: 15px;
+            justify-content: center;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .category-btn {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: all 0.3s;
+            min-width: 120px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: 800;
+            font-family: 'Baloo Thambi 2', 'cursive';
+            cursor: pointer;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: var(--primary-color);
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        .items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            justify-content: center;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            position: relative;
+        }
+
+        .hh1 {
+            overflow-y: auto;
+            flex-grow: 1;
+            background-image: radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%), 
+                              radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .abc1::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 L60 50 L50 70 L40 50 Z" fill="%23ff70a6" fill-opacity="0.2"/></svg>') repeat;
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        
+.heart {
+  height: 250px; 
+  aspect-ratio: 1;
+  --_m: radial-gradient(#000 69%,#0000 70%) 84.5%/50%;
+  -webkit-mask-box-image: var(--_m);
+             mask-border: var(--_m);
+  clip-path: polygon(-41% 0,50% 91%, 141% 0);
+  background: #cc333f;
+}
+
+@supports not (-webkit-mask-box-image: var(--_m)) { 
+  .heart {
+    mask:
+     radial-gradient(at 70% 31%,#000 29%,#0000 30%),
+     radial-gradient(at 30% 31%,#000 29%,#0000 30%),
+     conic-gradient(#000 0 0) bottom/100% 50% no-repeat;
+  }
+}
+
+        .item-card {
+            width: 120px;
+            height: 120px;
+            background-color: var(--primary-color);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .item-card img {
+            max-width: 70%;
+            max-height: 70%;
+            object-fit: contain;
+        }
+
+        .ar-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+            display: none;
+        }
+
+        #cameraFeed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background-color: transparent;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid var(--primary-color);
+        }
+
+        .control-btn i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .switch-camera-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid var(--primary-color);
+        }
+
+        .switch-camera-btn i {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .flashcards-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flashcard {
+            width: 80%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .flashcard h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .flashcard p {
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .close-flashcards {
+            position: absolute;
+            top: 20px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid var(--primary-color);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .categories {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .category-btn {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+                min-width: 100px;
+            }
+            
+            .item-card {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        
+        .login-modal {
+            display: flex; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lgdeco {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            justify-content: center;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-image: radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%), 
+                              radial-gradient(circle, rgba(255,229,238,0.4) 10%, transparent 10%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            position: relative;
+        }
+
+        .login-modal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 L60 50 L50 70 L40 50 Z" fill="%23ff70a6" fill-opacity="0.1"/></svg>') repeat;
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .login-content {
+            background-color: var(--primary-color);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .login-content h2 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        
+        .login-logo {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .login-logo span {
+            color: var(--accent-color);
+        }
+
+        .google-login-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: 0.5px solid black;
+            border-style: solid;
+            padding: 10px 15px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 auto;
+            width: 80%;
+            box-shadow: 0 6px 4px rgba(0,0,0,0.9);
+            font-weight: 600;
+        }
+
+        .google-login-btn:hover {
+            background-color: #f7f7f7;
+            transform: translateY(4px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        }
+
+        
+        .bounce {
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .app-container {
+            display: none; 
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container app-container" id="appContainer">
+        <header>
+            <h1 class="logo">sm<span>AR</span>ties.ai</h1>
+            <div class="auth-container">
+                <button class="btn btn-primary" id="loginBtn" style="display: none;">Sign In</button>
+                <button class="btn btn-primary" id="logoutBtn" style="display: none;">Sign Out</button>
+            </div>
+        </header>
+        <div class="hh1">
+<div class="abc1">
+        <div id="uic" class="user-info-container">
+            <div class="user-info" id="userInfo"></div>
+        </div>
+
+        <div class="categories" id="categories">
+            
+        </div>
+
+        <div class="items-container" id="itemsContainer">
+            
+        </div>
+</div>
+</div>
+        <div class="ar-container" id="arContainer">
+            <video id="cameraFeed" autoplay muted playsinline></video>
+            <model-viewer id="modelViewer" camera-controls touch-action="pan-y" auto-rotate exposure="1" shadow-intensity="1" ar ar-modes="webxr" alt="3D Model">
+            </model-viewer>
+            <button class="switch-camera-btn" id="switchCameraBtn" title="Switch Camera">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <div class="object-label" id="objectLabel"></div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none;">
+            <button class="control-btn" id="backBtn" title="Back">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="control-btn" id="speakBtn" title="Speak">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="control-btn" id="arToggleBtn" title="Toggle AR Mode">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button class="control-btn" id="resetBtn" title="Reset Model">
+                <i class="fas fa-redo-alt"></i>
+            </button>
+            <button class="control-btn" id="flashcardsBtn" title="AI Flashcards">
+                <i class="fas fa-brain"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="flashcards-container" id="flashcardsContainer">
+        <div class="close-flashcards" id="closeFlashcards">
+            <i class="fas fa-times"></i>
+        </div>
+        <div id="flashcardsWrapper">
+            
+        </div>
+    </div>
+
+    <div class="login-modal" id="loginModal">
+        <div class="login-content">
+            <div class="login-logo">sm<span>AR</span>ties.ai</div>
+            <h2>Welcome to a fun world!</h2>
+            <p>Sign in to start learning with AI & AR!</p>
+            <br>
+            <button class="google-login-btn" id="googleLoginBtn">
+                <i class="fab fa-google"></i>
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Generating AI Flashcards</p>
+    </div>
+
+<script type="module">
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.24.0";
+
+
+const firebaseConfig = {
+    REMOVED
+};
+
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
+
+
+let geminiModel;
+
+async function initializeGemini() {
+    try {
+        const API_KEY = "REMOVED"; 
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        console.log("AI initialized successfully");
+    } catch (error) {
+        console.error("Failed to initialize AI:", error);
+    }
+}
+
+
+initializeGemini();
+
+
+const appContainer = document.getElementById('appContainer');
+const categoriesContainer = document.getElementById('categories');
+const itemsContainer = document.getElementById('itemsContainer');
+const arContainer = document.getElementById('arContainer');
+const modelViewer = document.getElementById('modelViewer');
+const cameraFeed = document.getElementById('cameraFeed');
+const controls = document.getElementById('controls');
+const backBtn = document.getElementById('backBtn');
+const speakBtn = document.getElementById('speakBtn');
+const arToggleBtn = document.getElementById('arToggleBtn');
+const resetBtn = document.getElementById('resetBtn');
+const flashcardsBtn = document.getElementById('flashcardsBtn');
+const flashcardsContainer = document.getElementById('flashcardsContainer');
+const flashcardsWrapper = document.getElementById('flashcardsWrapper');
+const closeFlashcards = document.getElementById('closeFlashcards');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const userInfo = document.getElementById('userInfo');
+const loginModal = document.getElementById('loginModal');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const loading = document.getElementById('loading');
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+const objectLabel = document.getElementById('objectLabel');
+
+
+const categories = [
+    { id: 'animals', name: 'Animals', items: ['dog', 'cat', 'lion', 'elephant', 'tiger', 'cow', 'horse', 'monkey', 'zebra', 'rabbit'] },
+    { id: 'shapes', name: 'Shapes', items: ['circle', 'square', 'triangle', 'rectangle', 'star', 'heart', 'oval', 'diamond'] },
+    { id: 'transports', name: 'Transport', items: ['car', 'bus', 'train', 'airplane', 'ship', 'bicycle', 'helicopter', 'rocket', 'truck'] },
+    { id: 'fruits', name: 'Fruits', items: ['apple', 'banana', 'oranges', 'strawberry', 'mango', 'watermelon', 'grapes', 'pineapple'] },
+    { id: 'vegetables', name: 'Vegetables', items: ['carrot', 'tomato', 'potato', 'broccoli', 'corn', 'cucumber', 'onion', 'pumpkin'] },
+    { id: 'alphabets', name: 'Alphabets', items: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] },
+    { id: 'counting', name: 'Counting', items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
+    { id: 'colors', name: 'Colors', items: ['red', 'blue', 'yellow', 'green', 'orange', 'purple', 'pink', 'brown', 'black', 'white'] },
+    { id: 'bodyparts', name: 'Body Parts', items: ['head', 'eyes', 'ears', 'nose', 'mouth', 'hand', 'leg', 'neck', 'arm'] }
+];
+
+let currentCategory = null;
+let currentItem = null;
+let arMode = false;
+let speechSynthesis = window.speechSynthesis;
+let currentUser = null;
+let facingMode = "environment"; 
+
+
+function showLoading() {
+    loading.style.display = 'flex';
+}
+
+function hideLoading() {
+    loading.style.display = 'none';
+}
+
+function renderCategories() {
+    categoriesContainer.innerHTML = '';
+    
+    categories.forEach(category => {
+        const categoryBtn = document.createElement('button');
+        categoryBtn.className = 'category-btn';
+        categoryBtn.innerText = category.name;
+        categoryBtn.dataset.id = category.id;
+        
+        categoryBtn.addEventListener('click', () => {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            categoryBtn.classList.add('active', 'bounce');
+            loadCategoryItems(category);
+        });
+        
+        categoriesContainer.appendChild(categoryBtn);
+    });
+}
+
+function loadCategoryItems(category) {
+    currentCategory = category;
+    itemsContainer.innerHTML = '';
+    
+    category.items.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'item-card fade-in';
+        
+        
+        if (category.id === 'alphabets' || category.id === 'counting') {
+            const textElement = document.createElement('h2');
+            textElement.innerText = item;
+            textElement.style.fontSize = '3rem';
+            textElement.style.color = 'white';
+            itemCard.appendChild(textElement);
+        } 
+
+        else if(category.id === 'colors') {
+            itemCard.style.backgroundColor = `${item}`
+            if (item == 'brown'){
+                itemCard.style.backgroundColor = '#8b4513'
+            }
+            itemCard.style.borderColor = '#333'
+            itemCard.style.borderWidth = '4px'
+            itemCard.style.borderStyle = 'solid'
+            
+        }
+
+        else {
+            
+            const img = document.createElement('img');
+            img.src = `images/${item}.png`;
+            img.alt = item;
+            itemCard.appendChild(img);
+        }
+        
+        itemCard.addEventListener('click', () => {
+            itemCard.classList.add('bounce');
+            loadItemInAR(item, category.id);
+        });
+        
+        itemsContainer.appendChild(itemCard);
+    });
+}
+
+async function loadItemInAR(item, categoryId) {
+    currentItem = item;
+    
+    
+    itemsContainer.style.display = 'none';
+    categoriesContainer.style.display = 'none';
+    controls.style.display = 'flex';
+    arContainer.style.display = 'block';
+    document.getElementById('uic').style.display = 'none';
+    document.querySelector('.hh1').style.display = 'none';
+    
+    
+    objectLabel.textContent = item.charAt(0).toUpperCase() + item.slice(1);
+    objectLabel.style.display = 'block';
+    
+    
+    let modelSrc = ''; 
+    
+    
+    if (categoryId === 'alphabets') {
+        modelSrc = 'models/alphabets.glb';
+    } else if (categoryId === 'bodyparts') {
+        modelSrc = 'models/bodyparts.glb';
+    }
+    else {
+        
+        modelSrc = `models/${item}.glb`;
+    }
+    
+    modelViewer.src = modelSrc;
+    
+    
+    resetModel();
+    
+    
+    if (arMode) {
+        startCamera();
+        switchCameraBtn.style.display = 'flex';
+    } else {
+        stopCamera();
+        switchCameraBtn.style.display = 'none';
+    }
+    
+    
+    speakText(item);
+}
+
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: facingMode } 
+        });
+        cameraFeed.srcObject = stream;
+        cameraFeed.style.display = 'block';
+    } catch (err) {
+        console.error("Error accessing camera: ", err);
+        alert("Unable to access camera. Please check permissions.");
+    }
+}
+
+function stopCamera() {
+    if (cameraFeed.srcObject) {
+        const tracks = cameraFeed.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        cameraFeed.srcObject = null;
+    }
+    cameraFeed.style.display = 'none';
+    switchCameraBtn.style.display = 'none';
+}
+
+function speakText(text) {
+    if (speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.8; 
+        speechSynthesis.speak(utterance);
+    }
+}
+
+function resetModel() {
+    
+    modelViewer.cameraOrbit = '0deg 75deg 2m';
+    modelViewer.scale = '1 1 1';
+    currentScale = 1;
+    
+    
+    if (modelViewer.orientation) {
+        modelViewer.orientation = '0deg 0deg 0deg';
+    }
+}
+
+async function generateFlashcards() {
+    showLoading();
+    
+    try {
+
+        var currentItemCheck = ""
+
+        if(currentItem == '1' || currentItem == '2' || currentItem == '3' || currentItem == '4' || currentItem == '5' || currentItem == '6' || currentItem == '7' || currentItem == '8' || currentItem == '9' || currentItem == '10'){
+            currentItemCheck = "Counting from 1 to 10";
+        }
+        else{
+            currentItemCheck = currentItem;
+        }
+
+        
+        const prompt = `
+        Generate 3 educational flashcards about ${currentItemCheck || 'animals'} for children aged 2-8 years old.
+        
+        Each flashcard should be simple, factual, and educational.
+        Use simple language appropriate for young children.
+        Focus on basic concepts and interesting facts that would engage a child.
+        
+        Return ONLY a valid JSON array with exactly 3 items, each containing 'title' and 'fact' fields.
+        
+        Example format:
+        [
+          {
+            "title": "Elephants have trunks",
+            "fact": "Elephants use their long trunks to pick up food and drink water. The trunk is actually their nose!"
+          },
+          {
+            "title": "Second flashcard title",
+            "fact": "Second flashcard fact"
+          },
+          {
+            "title": "Third flashcard title",
+            "fact": "Third flashcard fact"
+          }
+        ]
+        `;
+        
+        const result = await geminiModel.generateContent([prompt]);
+        const response = await result.response.text();
+        
+        
+        let jsonMatch = response.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        
+        if (jsonMatch) {
+            try {
+                const jsonStr = jsonMatch[0];
+                const flashcardsData = JSON.parse(jsonStr);
+                
+                
+                renderFlashcards(flashcardsData);
+            } catch (e) {
+                console.error("Failed to parse AI response:", e);
+                alert("Something went wrong. Please try again.");
+            }
+        } else {
+            console.error("No valid JSON found in response");
+            alert("Something went wrong. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error calling AI API:", error);
+        alert("Failed to generate flashcards. Please try again later.");
+    } finally {
+        hideLoading();
+    }
+}
+
+function renderFlashcards(flashcardsData) {
+    flashcardsWrapper.innerHTML = '';
+    
+    flashcardsData.forEach(card => {
+        const flashcard = document.createElement('div');
+        flashcard.className = 'flashcard fade-in';
+        
+        const title = document.createElement('h3');
+        title.innerText = card.title;
+        
+        const fact = document.createElement('p');
+        fact.innerText = card.fact;
+        
+        flashcard.appendChild(title);
+        flashcard.appendChild(fact);
+        flashcardsWrapper.appendChild(flashcard);
+    });
+    
+    
+    flashcardsContainer.style.display = 'flex';
+    flashcardsContainer.style.justifyContent = 'center';
+    flashcardsContainer.style.alignItems = 'center';
+}
+
+
+function setupAuth() {
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            
+            currentUser = user;
+            userInfo.textContent = `Hi, ${user.displayName.split(' ')[0]}!`;
+            userInfo.style.display = 'block';
+            loginBtn.style.display = 'none';
+            logoutBtn.style.display = 'block';
+            loginModal.style.display = 'none';
+            
+            
+            appContainer.style.display = 'flex';
+            
+            
+            saveUserToDatabase(user);
+        } else {
+            
+            currentUser = null;
+            userInfo.style.display = 'none';
+            loginBtn.style.display = 'block';
+            logoutBtn.style.display = 'none';
+            
+            
+            appContainer.style.display = 'none';
+            
+            
+            loginModal.style.display = 'flex';
+        }
+    });
+}
+
+function formatDateToGMT530(date) {
+              const options = {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+              };
+              return date.toLocaleString('en-IN', options).replace(',', '');
+        }
+
+
+document.addEventListener('click', function(event) {
+            const element = event.target;
+            const email = currentUser.email;
+        
+            const clickData = {
+                tagName: element.tagName,
+                id: element.id || null,
+                classList: Array.from(element.classList).join(' ') || null,
+                textContent: element.textContent.trim() || null,
+                timestamp: formatDateToGMT530(new Date()),
+                userInfo: email,
+                page: document.title
+            };
+            database.ref('clicks').push(clickData);
+        });
+
+function saveUserToDatabase(user) {
+    
+    const userRef = database.ref('users/' + user.uid);
+    
+    
+    const now = new Date();
+    const istOffsetMinutes = 330; 
+    now.setMinutes(now.getMinutes() + istOffsetMinutes + now.getTimezoneOffset());
+    
+    const timestamp = now.toISOString().replace('T', ' ').substring(0, 19); 
+    
+    userRef.once('value', snapshot => {
+        if (!snapshot.exists()) {
+            
+            userRef.set({
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                createdAt: formatDateToGMT530(new Date())
+            });
+        } else {
+            
+            userRef.update({
+                lastLogin: formatDateToGMT530(new Date())
+            });
+        }
+    });
+}
+
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .catch(error => {
+            console.error("Error signing in with Google:", error);
+            alert("Sign-in failed. Please try again.");
+        });
+}
+
+function signOut() {
+    auth.signOut()
+        .catch(error => {
+            console.error("Error signing out:", error);
+        });
+}
+
+
+function switchCamera() {
+    
+    facingMode = facingMode === "environment" ? "user" : "environment";
+    
+    
+    if (cameraFeed.srcObject) {
+        const tracks = cameraFeed.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+    }
+    
+    
+    startCamera();
+}
+
+
+backBtn.addEventListener('click', () => {
+    stopCamera();
+    arContainer.style.display = 'none';
+    controls.style.display = 'none';
+    categoriesContainer.style.display = 'flex';
+    itemsContainer.style.display = 'flex';
+    objectLabel.style.display = 'none';
+    document.getElementById('uic').style.display = 'flex';
+    document.querySelector('.hh1').style.display = 'flex';
+    
+    
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+});
+
+speakBtn.addEventListener('click', () => {
+    speakBtn.classList.add('bounce');
+    speakText(currentItem);
+    
+    
+    setTimeout(() => {
+        speakBtn.classList.remove('bounce');
+    }, 500);
+});
+
+arToggleBtn.addEventListener('click', () => {
+    arToggleBtn.classList.add('bounce');
+    arMode = !arMode;
+    
+    if (arMode) {
+        startCamera();
+        arToggleBtn.innerHTML = '<i class="fas fa-cube"></i>'; 
+        switchCameraBtn.style.display = 'flex';
+    } else {
+        stopCamera();
+        arToggleBtn.innerHTML = '<i class="fas fa-camera"></i>'; 
+        switchCameraBtn.style.display = 'none';
+    }
+    
+    
+    setTimeout(() => {
+        arToggleBtn.classList.remove('bounce');
+    }, 500);
+});
+
+resetBtn.addEventListener('click', () => {
+    resetBtn.classList.add('bounce');
+    resetModel();
+    
+    
+    setTimeout(() => {
+        resetBtn.classList.remove('bounce');
+    }, 500);
+});
+
+flashcardsBtn.addEventListener('click', () => {
+    flashcardsBtn.classList.add('bounce');
+    generateFlashcards();
+    
+    
+    setTimeout(() => {
+        flashcardsBtn.classList.remove('bounce');
+    }, 500);
+});
+
+closeFlashcards.addEventListener('click', () => {
+    flashcardsContainer.style.display = 'none';
+});
+
+loginBtn.addEventListener('click', () => {
+    loginModal.style.display = 'flex';
+});
+
+logoutBtn.addEventListener('click', () => {
+    signOut();
+});
+
+googleLoginBtn.addEventListener('click', () => {
+    signInWithGoogle();
+});
+
+switchCameraBtn.addEventListener('click', () => {
+    switchCameraBtn.classList.add('bounce');
+    switchCamera();
+    
+    
+    setTimeout(() => {
+        switchCameraBtn.classList.remove('bounce');
+    }, 500);
+});
+
+
+let initialTouchDistance = 0;
+let currentScale = 1;
+let initialRotation = 0;
+
+modelViewer.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+        
+        initialTouchDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+    }
+    
+    if (e.touches.length === 1) {
+        
+        initialRotation = e.touches[0].pageX;
+    }
+});
+
+modelViewer.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+        
+        const currentTouchDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+        
+        
+        const scaleFactor = currentTouchDistance / initialTouchDistance;
+        const newScale = currentScale * scaleFactor;
+        
+        
+        if (newScale >= 0.5 && newScale <= 3) {
+            modelViewer.scale = `${newScale} ${newScale} ${newScale}`;
+            currentScale = newScale;
+        }
+        
+        initialTouchDistance = currentTouchDistance;
+    }
+    
+    if (e.touches.length === 1) {
+        
+        const currentRotation = e.touches[0].pageX;
+        const rotationDelta = currentRotation - initialRotation;
+        
+        
+        modelViewer.dispatchEvent(new CustomEvent('user-interaction', {
+            detail: {
+                type: 'rotate',
+                delta: { x: 0, y: rotationDelta * 0.5 }
+            }
+        }));
+        
+        initialRotation = currentRotation;
+    }
+    
+    e.preventDefault();
+});
+
+
+function initApp() {
+    renderCategories();
+    setupAuth();
+}
+
+
+window.addEventListener('load', initApp);
+</script>
+<button id="installBtn" title="Install App" style="display:none;">
+    <i class="fas fa-download"></i>
+</button>
+<style>
+    #installBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 10000000000000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+</style>
+<script>
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+function isMobileOrTablet() {
+    return /android|ipad|iphone|ipod/i.test(navigator.userAgent.toLowerCase());
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    if (isMobileOrTablet()) {
+        installBtn.style.display = "flex";
+
+        setTimeout(() => {
+            installBtn.click();
+        }, 1500);
+    }
+});
+
+installBtn.addEventListener("click", () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+            if (choice.outcome === "accepted") {
+                console.log("User accepted the install prompt");
+            } else {
+                console.log("User dismissed the install prompt");
+            }
+            deferredPrompt = null;
+        });
+    }
+});
+</script>
+</body>
+</html>
